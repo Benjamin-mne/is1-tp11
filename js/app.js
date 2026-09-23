@@ -1,7 +1,7 @@
 /**
  * app.js: inicializa el flujo de cada página según el atributo
  * data-page que tiene <body>. Se encarga de la interacción entre
- * páginas (navegación, sesión y recuperación de contraseña).
+ * páginas (navegación, sesión, recuperación de contraseña y tickets).
  */
 document.addEventListener("DOMContentLoaded", () => {
     const pageHandlers = {
@@ -10,7 +10,10 @@ document.addEventListener("DOMContentLoaded", () => {
         recovery: initRecovery,
         verify: initVerify,
         "new-password": initNewPassword,
-        dashboard: initDashboard,
+        helpdesk: initHelpdesk,
+        "ticket-detail": initTicketDetail,
+        "ticket-create": initTicketCreate,
+        "ticket-append": initTicketAppend,
     };
 
     const page = document.body.dataset.page;
@@ -48,6 +51,9 @@ const FLASH_MESSAGES = {
     registered: "Cuenta creada exitosamente. Ahora podés iniciar sesión.",
     reset: "Contraseña actualizada. Iniciá sesión con tu nueva contraseña.",
     logout: "Sesión cerrada correctamente.",
+    created: "Ticket creado correctamente.",
+    canceled: "El ticket fue cancelado.",
+    details_added: "Los detalles fueron agregados al ticket.",
 };
 
 /** Muestra un banner de confirmación leído del query string (?flash=...). */
@@ -69,12 +75,58 @@ function getFormMessage(form) {
     return document.getElementById("form-message");
 }
 
+/** Sanitiza texto del usuario antes de insertarlo en el DOM. */
+const escapeHtml = (value) =>
+    String(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+    }[char]));
+
+/* ---------------------------------------------------------------------------
+   Estados e íconos de tickets (Material Symbols)
+--------------------------------------------------------------------------- */
+const TICKET_STATUS = {
+    pending: { label: "Pendiente", icon: "schedule" },
+    "in-progress": { label: "En proceso", icon: "sync" },
+    resolved: { label: "Resuelto", icon: "check_circle" },
+    canceled: { label: "Cancelado", icon: "cancel" },
+};
+
+/** Renderiza un chip de estado (ícono Material + texto). */
+const statusChip = (ticket) => {
+    const meta = TICKET_STATUS[ticket.status] || TICKET_STATUS.pending;
+    return (
+        `<span class="status-chip status--${ticket.status}">` +
+        `<span class="material-symbols-outlined" aria-hidden="true">${meta.icon}</span>` +
+        `${meta.label}</span>`
+    );
+};
+
+/** Renderiza una tarjeta del listado de tickets. */
+const ticketCard = (ticket) => `
+    <a href="ticket-detail.html?id=${ticket.id}" class="ticket-card status--${ticket.status}">
+        <div class="ticket-id">Ticket N° ${escapeHtml(ticket.code)}</div>
+        <p class="ticket-desc"><strong>Descripción:</strong> ${escapeHtml(ticket.headline)}</p>
+        <span class="ticket-date">Fecha: ${escapeHtml(ticket.date)}</span>
+        <div class="ticket-status-label">${statusChip(ticket)}</div>
+    </a>`;
+
+/** Guard: las páginas del portal exigen sesión iniciada. */
+function requireSession() {
+    if (MockAuth.currentUser()) return true;
+    window.location.replace("index.html");
+    return false;
+}
+
 /* ---------------------------------------------------------------------------
    LOGIN (index.html)
 --------------------------------------------------------------------------- */
 function initLogin() {
     if (MockAuth.currentUser()) {
-        window.location.replace("dashboard.html");
+        window.location.replace("helpdesk.html");
         return;
     }
 
@@ -109,7 +161,7 @@ function initLogin() {
             return;
         }
 
-        window.location.href = "dashboard.html";
+        window.location.href = "helpdesk.html";
     });
 }
 
@@ -118,7 +170,7 @@ function initLogin() {
 --------------------------------------------------------------------------- */
 function initRegister() {
     if (MockAuth.currentUser()) {
-        window.location.replace("dashboard.html");
+        window.location.replace("helpdesk.html");
         return;
     }
 
@@ -223,7 +275,9 @@ function initVerify() {
             return;
         }
 
-        if (code !== state.code) {
+        // Se lee el código vigente del store: también sirve para códigos reenviados.
+        const current = MockAuth.getRecovery();
+        if (!current || code !== current.code) {
             Ui.showMessage(message, "El código ingresado es incorrecto.", "error");
             return;
         }
@@ -236,9 +290,12 @@ function initVerify() {
         resend.addEventListener("click", (event) => {
             event.preventDefault();
             const newCode = MockAuth.generateCode();
-            MockAuth.setRecovery({ ...state, code: newCode });
+            MockAuth.setRecovery({ email: state.email, code: newCode });
             if (codeEl) codeEl.textContent = newCode;
-            if (emailEl) emailEl.textContent = state.email;
+            otpInputs.forEach((input) => {
+                input.value = "";
+            });
+            if (otpInputs[0]) otpInputs[0].focus();
             Ui.showMessage(message, "Te reenviamos un nuevo código de prueba.", "notice");
         });
     }
@@ -285,20 +342,64 @@ function initNewPassword() {
 }
 
 /* ---------------------------------------------------------------------------
-   DASHBOARD (dashboard.html)
+   MESA DE AYUDA - Home / listado (helpdesk.html)
 --------------------------------------------------------------------------- */
-function initDashboard() {
+function initHelpdesk() {
+    if (!requireSession()) return;
+    showFlashFromParam();
+
     const user = MockAuth.currentUser();
-    if (!user) {
-        window.location.replace("index.html");
-        return;
+
+    const listEl = document.getElementById("tickets-list");
+    const filterEl = document.getElementById("ticket-filter");
+    const countEl = document.getElementById("tickets-count");
+
+    const render = () => {
+        const status = filterEl ? filterEl.value : "all";
+        const tickets = MockTickets.list(status);
+
+        if (countEl) countEl.textContent = `(${tickets.length})`;
+
+        if (!listEl) return;
+        if (!tickets.length) {
+            listEl.innerHTML = '<p class="empty-state">No hay tickets en esta vista.</p>';
+            return;
+        }
+        listEl.innerHTML = tickets.map(ticketCard).join("");
+    };
+
+    if (filterEl) filterEl.addEventListener("change", render);
+    render();
+
+    const menuBtn = document.getElementById("user-menu-btn");
+    const menu = document.getElementById("user-menu");
+    const menuEmail = document.getElementById("user-menu-email");
+    if (menuEmail) menuEmail.textContent = user.email;
+
+    if (menuBtn && menu) {
+        const setMenuOpen = (open) => {
+            menu.hidden = !open;
+            menuBtn.setAttribute("aria-expanded", String(open));
+        };
+
+        menuBtn.addEventListener("click", (event) => {
+            event.stopPropagation();
+            setMenuOpen(menu.hidden);
+        });
+
+        document.addEventListener("click", (event) => {
+            if (!menu.hidden && !menu.contains(event.target)) {
+                setMenuOpen(false);
+            }
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (!menu.hidden && event.key === "Escape") {
+                setMenuOpen(false);
+                menuBtn.focus();
+            }
+        });
     }
-
-    const emailLabel = document.getElementById("user-email");
-    if (emailLabel) emailLabel.textContent = user.email;
-
-    const nameLabel = document.getElementById("user-name");
-    if (nameLabel) nameLabel.textContent = user.email.split("@")[0];
 
     const logoutBtn = document.getElementById("logout-btn");
     if (logoutBtn) {
@@ -307,6 +408,128 @@ function initDashboard() {
             window.location.href = "index.html?flash=logout";
         });
     }
+}
+
+/* ---------------------------------------------------------------------------
+   MESA DE AYUDA - Detalle de ticket (ticket-detail.html)
+--------------------------------------------------------------------------- */
+function initTicketDetail() {
+    if (!requireSession()) return;
+    showFlashFromParam();
+
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    const ticket = id ? MockTickets.get(id) : null;
+    if (!ticket) {
+        window.location.replace("helpdesk.html");
+        return;
+    }
+
+    document.getElementById("detail-id").textContent = `Ticket ${ticket.code}`;
+    document.getElementById("detail-title").textContent = ticket.headline;
+    document.getElementById("detail-body").textContent = ticket.description;
+    document.getElementById("detail-client").textContent = ticket.client;
+    document.getElementById("detail-date").textContent = ticket.date;
+    document.getElementById("detail-status").innerHTML = statusChip(ticket);
+
+    const appendLink = document.getElementById("append-details-link");
+    if (appendLink) appendLink.href = `ticket-append.html?id=${ticket.id}`;
+
+    const cancelBtn = document.getElementById("cancel-ticket-btn");
+    if (cancelBtn) {
+        const actionable = ticket.status !== "resolved" && ticket.status !== "canceled";
+        cancelBtn.hidden = !actionable;
+        if (!actionable) {
+            const row = cancelBtn.closest(".button-split-row");
+            if (row) row.classList.add("full");
+        }
+        cancelBtn.addEventListener("click", () => {
+            MockTickets.cancel(ticket.id);
+            window.location.href = "helpdesk.html?flash=canceled";
+        });
+    }
+}
+
+/* ---------------------------------------------------------------------------
+   MESA DE AYUDA - Cargar ticket (ticket-create.html)
+--------------------------------------------------------------------------- */
+function initTicketCreate() {
+    if (!requireSession()) return;
+
+    const form = document.getElementById("create-form");
+    const message = getFormMessage(form);
+
+    const rules = {
+        "ticket-headline": [Validator.required],
+        "ticket-description": [Validator.required],
+    };
+    Validator.clearOnInput(form, rules);
+
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        Ui.hideMessage(message);
+
+        const result = Validator.validate(form, rules);
+        if (!result.ok) {
+            result.firstErrorEl.focus();
+            return;
+        }
+
+        MockTickets.create({
+            headline: form.elements["ticket-headline"].value,
+            description: form.elements["ticket-description"].value,
+            client: MockAuth.currentUser().email,
+        });
+
+        window.location.href = "helpdesk.html?flash=created";
+    });
+}
+
+/* ---------------------------------------------------------------------------
+   MESA DE AYUDA - Agregar detalles (ticket-append.html)
+--------------------------------------------------------------------------- */
+function initTicketAppend() {
+    if (!requireSession()) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    const ticket = id ? MockTickets.get(id) : null;
+    if (!ticket) {
+        window.location.replace("helpdesk.html");
+        return;
+    }
+
+    const backEl = document.getElementById("append-back");
+    if (backEl) backEl.href = `ticket-detail.html?id=${ticket.id}`;
+
+    document.getElementById("preview-id").textContent = `Ticket ${ticket.code}`;
+    document.getElementById("preview-title").textContent = ticket.headline;
+    document.getElementById("preview-snippet").textContent =
+        ticket.description.length > 80
+            ? `${ticket.description.slice(0, 80)}...`
+            : ticket.description;
+
+    const form = document.getElementById("append-form");
+    const message = getFormMessage(form);
+
+    const rules = {
+        "ticket-extra-details": [Validator.required],
+    };
+    Validator.clearOnInput(form, rules);
+
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        Ui.hideMessage(message);
+
+        const result = Validator.validate(form, rules);
+        if (!result.ok) {
+            result.firstErrorEl.focus();
+            return;
+        }
+
+        MockTickets.appendDetail(ticket.id, form.elements["ticket-extra-details"].value);
+        window.location.href = `ticket-detail.html?id=${ticket.id}&flash=details_added`;
+    });
 }
 
 /* ---------------------------------------------------------------------------

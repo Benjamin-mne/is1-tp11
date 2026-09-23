@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mesa de Ayuda</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="helpdesk">
+    <main class="mobile-auth-container">
+        <div id="flash" class="flash-banner" role="status" aria-live="polite"></div>
+
+        <section class="auth-screen">
+            <header class="screen-header row-header">
+                <p class="page-title">Mesa de Ayuda</p>
+                <div class="header-actions">
+                    <button id="user-menu-btn" type="button" class="user-avatar-icon"
+                            aria-label="Abrir menú de usuario" aria-haspopup="true" aria-expanded="false">
+                        <span class="material-symbols-outlined" aria-hidden="true">person</span>
+                    </button>
+
+                    <div class="user-menu" id="user-menu" role="menu" hidden>
+                        <p class="user-menu-email" id="user-menu-email">---</p>
+                        <button id="logout-btn" type="button" class="user-menu-item" role="menuitem">
+                            <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+                            Cerrar sesión
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="form-container">
+                <div class="welcome-box">
+                    <h2>Bienvenido/a al portal Mesa de Ayuda</h2>
+                    <p class="sub-text">¿Necesitas asistencia?</p>
+                    <a href="ticket-create.html" class="btn-outline-action">
+                        <span class="material-symbols-outlined" aria-hidden="true">add</span>
+                        Abrir ticket
+                    </a>
+                </div>
+
+                <div class="tickets-section">
+                    <div class="section-title-bar">
+                        <h3>Tickets <span id="tickets-count" aria-hidden="true"></span></h3>
+                        <select id="ticket-filter" class="ticket-filter" aria-label="Filtrar tickets por estado">
+                            <option value="all">Todas</option>
+                            <option value="pending">Pendientes</option>
+                            <option value="in-progress">En proceso</option>
+                            <option value="resolved">Resueltas</option>
+                            <option value="canceled">Canceladas</option>
+                        </select>
+                    </div>
+
+                    <div id="tickets-list" class="tickets-list"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/auth.js"></script>
+    <script src="js/tickets.js"></script>
+    <script src="js/validate.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

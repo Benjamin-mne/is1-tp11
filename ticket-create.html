@@ -3,56 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión</title>
+    <title>Carga de Ticket</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
     <link rel="stylesheet" href="css/styles.css">
 </head>
-<body data-page="login">
+<body data-page="ticket-create">
     <main class="mobile-auth-container">
         <div id="flash" class="flash-banner" role="status" aria-live="polite"></div>
 
         <section class="auth-screen">
-            <header class="hero-header">
-                <div class="hero-overlay">
-                    <h1>¿Problemas con el producto?</h1>
-                    <p>Te ayudamos.</p>
-                </div>
+            <header class="screen-header">
+                <a href="helpdesk.html" class="btn-back"><span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>Volver</a>
+                <h2>Carga de Ticket</h2>
             </header>
 
             <div class="form-container">
+                <p class="instruction-text left-align">
+                    A continuación se pedirá que complete con información sobre el problema que está experimentando.
+                </p>
+
                 <p id="form-message" class="form-message" role="alert" hidden></p>
 
-                <form id="login-form" novalidate>
+                <form id="create-form" novalidate>
                     <div class="input-group">
-                        <label for="login-email">Ingrese su e-mail</label>
-                        <input type="email" id="login-email" name="login-email"
-                               placeholder="email@example.com" autocomplete="email" required>
+                        <label for="ticket-headline">Ingrese un encabezado</label>
+                        <input type="text" id="ticket-headline" name="ticket-headline"
+                               placeholder="Encabezado" autocomplete="off" required>
                         <small class="field-error" aria-live="polite"></small>
                     </div>
 
                     <div class="input-group">
-                        <label for="login-pass">Ingrese su contraseña</label>
-                        <input type="password" id="login-pass" name="login-pass"
-                               placeholder="contraseña" autocomplete="current-password" required>
+                        <label for="ticket-description">Ingrese la descripción de su problema</label>
+                        <textarea id="ticket-description" name="ticket-description" rows="6"
+                                  placeholder="Descripción..." required></textarea>
                         <small class="field-error" aria-live="polite"></small>
-                        <a href="recovery.html" class="forgot-password-link">¿Olvidó su contraseña?</a>
                     </div>
 
-                    <button type="submit" class="btn-primary">Iniciar Sesión</button>
+                    <button type="submit" class="btn-primary margin-top-auto">Cargar Ticket</button>
                 </form>
-
-                <p class="mock-hint">Cuenta de prueba: <code>demo@example.com</code> / <code>demo1234</code></p>
-
-                <footer class="form-footer">
-                    <p>¿No estás registrado? <a href="register.html">Registrarse</a></p>
-                </footer>
             </div>
         </section>
     </main>
 
     <script src="js/auth.js"></script>
+    <script src="js/tickets.js"></script>
     <script src="js/validate.js"></script>
     <script src="js/app.js"></script>
 </body>
