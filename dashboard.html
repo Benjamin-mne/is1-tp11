@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="dashboard">
+    <main class="mobile-auth-container">
+        <div id="flash" class="flash-banner" role="status" aria-live="polite"></div>
+
+        <section class="auth-screen">
+            <header class="screen-header dashboard-header">
+                <h2>Hola, <span id="user-name">usuario</span></h2>
+            </header>
+
+            <div class="dashboard-body">
+                <div class="placeholder-card">
+                    <div class="placeholder-icon" aria-hidden="true"></div>
+                    <p>Sección en construcción</p>
+                    <p class="placeholder-sub">
+                        Este espacio está reservado para el contenido del dashboard.
+                    </p>
+                </div>
+
+                <p class="mock-hint dashboard-email">
+                    Sesión iniciada como <strong id="user-email">tucorreo@example.com</strong>
+                </p>
+            </div>
+
+            <div class="form-footer">
+                <button id="logout-btn" type="button" class="btn-danger">Cerrar sesión</button>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/auth.js"></script>
+    <script src="js/validate.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

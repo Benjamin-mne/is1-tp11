@@ -1,0 +1,475 @@
+/* ==========================================================================
+   1. VARIABLES Y RESETEO
+   ========================================================================== */
+:root {
+    --color-primary: #007aff;
+    --color-primary-dark: #0062cc;
+    --color-danger: #ff3b30;
+    --color-danger-dark: #d9382f;
+    --color-success: #34c759;
+    --color-bg: #f4f4f6;
+    --color-surface: #ffffff;
+    --color-border: #d1d1d6;
+    --color-text: #333333;
+    --color-text-muted: #6b6b70;
+    --color-input-bg: #fafafa;
+    --radius-input: 12px;
+    --radius-pill: 25px;
+    --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font);
+}
+
+body {
+    background: linear-gradient(135deg, #e9edf2 0%, #f4f4f6 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: var(--color-text);
+}
+
+/* ==========================================================================
+   2. CONTENEDOR MÓVIL
+   ========================================================================== */
+.mobile-auth-container {
+    width: 100%;
+    max-width: 412px;
+    height: min(844px, 100dvh);
+    background-color: var(--color-surface);
+    border: 8px solid #222;
+    border-radius: 40px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-screen {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+/* ==========================================================================
+   3. CABECERAS Y NAVEGACIÓN
+   ========================================================================== */
+.screen-header {
+    padding: 24px 20px 10px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.btn-back {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    align-self: flex-start;
+    transition: color 0.2s;
+}
+
+.btn-back:hover {
+    color: var(--color-text);
+}
+
+h2 {
+    font-size: 26px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.instruction-text {
+    font-size: 14px;
+    color: var(--color-text-muted);
+    text-align: center;
+    line-height: 1.5;
+    margin-bottom: 24px;
+    padding: 0 10px;
+}
+
+/* ==========================================================================
+   4. HERO DEL LOGIN (gradiente, sin imagen externa)
+   ========================================================================== */
+.hero-header {
+    width: 100%;
+    height: 35%;
+    background: linear-gradient(160deg, #2563eb 0%, #0ea5e9 55%, #06b6d4 100%);
+    position: relative;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    text-align: center;
+    color: #ffffff;
+}
+
+.hero-overlay h1 {
+    font-size: 22px;
+    margin-bottom: 6px;
+}
+
+.hero-overlay p {
+    font-size: 15px;
+    opacity: 0.9;
+}
+
+/* ==========================================================================
+   5. FORMULARIOS E INPUTS
+   ========================================================================== */
+.form-container {
+    padding: 24px 24px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    width: 100%;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.input-group label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+    padding-left: 4px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-input);
+    font-size: 15px;
+    background-color: var(--color-input-bg);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+}
+
+.input-group.has-error input {
+    border-color: var(--color-danger);
+    background-color: #fff5f5;
+}
+
+.input-group.has-error input:focus {
+    box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.15);
+}
+
+.field-error {
+    min-height: 1em;
+    font-size: 12px;
+    color: var(--color-danger);
+    padding-left: 4px;
+}
+
+.forgot-password-link {
+    font-size: 11px;
+    color: var(--color-primary);
+    text-decoration: none;
+    align-self: flex-end;
+    margin-top: 4px;
+}
+
+.forgot-password-link:hover {
+    text-decoration: underline;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    margin: 4px 0;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--color-primary);
+    margin-top: 1px;
+    flex-shrink: 0;
+}
+
+.checkbox-group a {
+    color: var(--color-primary);
+}
+
+.checkbox-group.has-error {
+    color: var(--color-danger);
+}
+
+/* ==========================================================================
+   6. MENSAJES DE FORMULARIO Y FLASH
+   ========================================================================== */
+.form-message {
+    display: block;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.4;
+    margin-bottom: 14px;
+}
+
+.form-message[hidden] {
+    display: none;
+}
+
+.form-message--success {
+    background-color: #e8f9ee;
+    color: #1a7a3a;
+    border: 1px solid #bfe9cd;
+}
+
+.form-message--error {
+    background-color: #fdecec;
+    color: #a01812;
+    border: 1px solid #f5c6c6;
+}
+
+.form-message--notice {
+    background-color: #eef4ff;
+    color: #1d4ed8;
+    border: 1px solid #c7d8ff;
+}
+
+.flash-banner {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    z-index: 10;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background-color: #1b1b1f;
+    color: #ffffff;
+    font-size: 13px;
+    line-height: 1.4;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(-12px);
+    pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.flash-banner.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ==========================================================================
+   7. AVISO DEL MOCK (ayuda para probar el prototipo)
+   ========================================================================== */
+.mock-hint {
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--color-text-muted);
+    text-align: center;
+    background-color: var(--color-bg);
+    border: 1px dashed var(--color-border);
+    border-radius: 10px;
+    padding: 8px 12px;
+}
+
+.mock-hint code {
+    background-color: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 12px;
+}
+
+/* ==========================================================================
+   8. BOTONES
+   ========================================================================== */
+.btn-primary {
+    width: 100%;
+    padding: 15px;
+    background-color: var(--color-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-pill);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+    margin-top: 10px;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-dark);
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+.btn-danger {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--color-danger);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-pill);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-danger:hover {
+    background-color: var(--color-danger-dark);
+}
+
+.form-footer {
+    margin-top: auto;
+    padding-top: 24px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--color-text-muted);
+}
+
+.form-footer a,
+.btn-link {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.form-footer a:hover,
+.btn-link:hover {
+    text-decoration: underline;
+}
+
+/* ==========================================================================
+   9. CÓDIGO OTP
+   ========================================================================== */
+.otp-inputs {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.otp-inputs input {
+    width: 45px;
+    height: 48px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    border: 1.5px solid var(--color-border);
+    border-radius: 10px;
+    background-color: var(--color-input-bg);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.otp-inputs input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+}
+
+.otp-divider {
+    font-size: 20px;
+    color: #8e8e93;
+    font-weight: bold;
+    padding: 0 2px;
+}
+
+/* ==========================================================================
+   10. DASHBOARD (placeholder)
+   ========================================================================== */
+.dashboard-header h2 {
+    margin: 0;
+}
+
+.dashboard-body {
+    padding: 24px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.placeholder-card {
+    width: 100%;
+    border: 2px dashed var(--color-border);
+    border-radius: 20px;
+    padding: 40px 24px;
+    text-align: center;
+    background-color: var(--color-bg);
+}
+
+.placeholder-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: linear-gradient(160deg, #2563eb 0%, #06b6d4 100%);
+    opacity: 0.85;
+}
+
+.placeholder-card p {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.placeholder-sub {
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--color-text-muted);
+}
+
+.dashboard-email {
+    margin-top: 0;
+}
+
+/* ==========================================================================
+   11. RESPONSIVE (pantallas reales)
+   ========================================================================== */
+@media (max-width: 428px) {
+    .mobile-auth-container {
+        border: none;
+        border-radius: 0;
+        max-width: none;
+        box-shadow: none;
+    }
+}
