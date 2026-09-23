@@ -243,10 +243,17 @@ form {
 
 .checkbox-group {
     display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
     align-items: flex-start;
     gap: 8px;
     font-size: 13px;
     margin: 4px 0;
+}
+
+.checkbox-group .field-error {
+    flex-basis: 100%;
+    padding-left: 0;
 }
 
 .checkbox-group input[type="checkbox"] {
@@ -809,8 +816,8 @@ form {
     margin-top: 20px;
 }
 
-.button-split-row.full {
-    grid-template-columns: 1fr;
+.button-split-row[hidden] {
+    display: none;
 }
 
 .btn-danger-outline {
@@ -903,4 +910,42 @@ form {
         max-width: none;
         box-shadow: none;
     }
+}
+
+/* ==========================================================================
+   13. BADGE "SOURCE CODE" (estilo "Powered by Netlify")
+   ========================================================================== */
+.source-badge {
+    position: fixed;
+    right: 16px;
+    bottom: 14px;
+    z-index: 999;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #ffffff;
+    border: 1px solid #d8dde6;
+    border-radius: 999px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+    color: #55606c;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+    font-family: var(--font);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+}
+
+.source-badge:hover {
+    color: #1f2328;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24);
+}
+
+.source-badge__logo {
+    width: 18px;
+    height: 18px;
+    fill: #1f2328;
+    flex-shrink: 0;
 }

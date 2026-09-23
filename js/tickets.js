@@ -91,10 +91,14 @@ const MockTickets = (() => {
         return ticket;
     };
 
+    /** Un ticket "cerrado" (resuelto o cancelado) no admite modificaciones. */
+    const isClosed = (ticket) =>
+        !!ticket && (ticket.status === "resolved" || ticket.status === "canceled");
+
     const appendDetail = (id, text) => {
         const tickets = read();
         const ticket = tickets.find((t) => t.id === Number(id));
-        if (!ticket) return null;
+        if (!ticket || isClosed(ticket)) return null;
         ticket.description += `\n\n[Detalle adicional del ${formatDate(new Date())}]\n${text.trim()}`;
         write(tickets);
         return ticket;
@@ -103,7 +107,7 @@ const MockTickets = (() => {
     const cancel = (id) => {
         const tickets = read();
         const ticket = tickets.find((t) => t.id === Number(id));
-        if (!ticket || ticket.status === "resolved" || ticket.status === "canceled") return null;
+        if (!ticket || isClosed(ticket)) return null;
         ticket.status = "canceled";
         write(tickets);
         return ticket;

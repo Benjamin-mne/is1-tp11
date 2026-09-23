@@ -3,7 +3,38 @@
  * data-page que tiene <body>. Se encarga de la interacción entre
  * páginas (navegación, sesión, recuperación de contraseña y tickets).
  */
+/**
+ * URL del repositorio de origen, usada por el badge "Source Code".
+ */
+const SOURCE_CODE_URL = "https://github.com/Benjamin-mne/is1-tp11";
+
+/**
+ * Crea el badge "Source Code" (con el logo de GitHub) que flota por fuera
+ * de las pantallas, al estilo del badge "Powered by Netlify", como acceso
+ * directo al repositorio del prototipo.
+ */
+function injectSourceBadge() {
+    if (document.querySelector(".source-badge")) return;
+
+    const badge = document.createElement("a");
+    badge.className = "source-badge";
+    badge.href = SOURCE_CODE_URL;
+    badge.target = "_blank";
+    badge.rel = "noopener noreferrer";
+    badge.setAttribute("aria-label", "Source Code (repositorio de GitHub)");
+
+    badge.innerHTML =
+        '<svg class="source-badge__logo" viewBox="0 0 16 16" aria-hidden="true" focusable="false">' +
+        '<path fill="currentColor" fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27 1.36 0 2.04.09 2 .27.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>' +
+        "</svg>" +
+        "<span class=\"source-badge__text\">Source Code</span>";
+
+    document.body.appendChild(badge);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+    injectSourceBadge();
+
     const pageHandlers = {
         login: initLogin,
         register: initRegister,
@@ -436,13 +467,24 @@ function initTicketDetail() {
     if (appendLink) appendLink.href = `ticket-append.html?id=${ticket.id}`;
 
     const cancelBtn = document.getElementById("cancel-ticket-btn");
-    if (cancelBtn) {
-        const actionable = ticket.status !== "resolved" && ticket.status !== "canceled";
-        cancelBtn.hidden = !actionable;
-        if (!actionable) {
-            const row = cancelBtn.closest(".button-split-row");
-            if (row) row.classList.add("full");
+    const actionRow = document.querySelector(".button-split-row");
+    const closedNote = document.getElementById("detail-closed-note");
+
+    // Un ticket resuelto o cancelado no admite cancelarlo ni modificarle detalles.
+    const actionable = ticket.status !== "resolved" && ticket.status !== "canceled";
+
+    if (!actionable) {
+        if (actionRow) actionRow.hidden = true;
+        if (closedNote) {
+            closedNote.textContent =
+                ticket.status === "canceled"
+                    ? "Este ticket está cancelado y ya no se puede modificar."
+                    : "Este ticket está resuelto y ya no se puede modificar.";
+            closedNote.hidden = false;
         }
+    }
+
+    if (cancelBtn) {
         cancelBtn.addEventListener("click", () => {
             MockTickets.cancel(ticket.id);
             window.location.href = "helpdesk.html?flash=canceled";
@@ -496,6 +538,12 @@ function initTicketAppend() {
     const ticket = id ? MockTickets.get(id) : null;
     if (!ticket) {
         window.location.replace("helpdesk.html");
+        return;
+    }
+
+    // Un ticket resuelto o cancelado ya no admite modificaciones.
+    if (ticket.status === "resolved" || ticket.status === "canceled") {
+        window.location.replace(`ticket-detail.html?id=${ticket.id}`);
         return;
     }
 
